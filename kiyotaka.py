@@ -1,6 +1,6 @@
 """
 PROJECT: Mond AI Assistant
-GOAL: A stoic, Ayanokoji-inspired system operator that manages the PC via Python.
+GOAL: A stoic, Ayanokōji-inspired system operator that manages the PC via Python.
 
 REQUIREMENTS MET:
 1. BRAIN  - Open Interpreter as the core execution engine.
