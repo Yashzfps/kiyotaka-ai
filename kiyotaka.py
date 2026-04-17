@@ -42,7 +42,7 @@ TTS_VOLUME = 0.9
 # Mond AI class
 # ---------------------------------------------------------------------------
 
-class MondAI:
+class MondAssistant:
     """Stoic AI system operator powered by Open Interpreter."""
 
     def __init__(self) -> None:
@@ -257,5 +257,5 @@ class MondAI:
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    mond_ai = MondAI()
-    mond_ai.run()
+    mond_assistant = MondAssistant()
+    mond_assistant.run()
