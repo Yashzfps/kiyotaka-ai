@@ -1,5 +1,5 @@
 """
-PROJECT: Kiyotaka AI Assistant
+PROJECT: Mond AI Assistant
 GOAL: A stoic, Ayanokoji-inspired system operator that manages the PC via Python.
 
 REQUIREMENTS MET:
@@ -12,6 +12,7 @@ REQUIREMENTS MET:
 
 import subprocess
 import sys
+import re
 
 import speech_recognition as sr
 import pyttsx3
@@ -22,7 +23,7 @@ from interpreter import interpreter
 # ---------------------------------------------------------------------------
 
 SYSTEM_MESSAGE = """
-You are Kiyotaka — a silent, analytical system operator.
+You are Mond — a silent, analytical system operator.
 Speak only when necessary. Use precise, minimal language.
 No emojis. No enthusiasm. No filler words.
 Every response must be logical, efficient, and direct.
@@ -30,7 +31,7 @@ When writing code or terminal commands, prefer brevity and correctness.
 Do not explain the obvious. Omit pleasantries entirely.
 """
 
-WAKE_WORD = "kiyotaka"
+WAKE_WORD = "mond"
 
 # TTS configuration
 TTS_SPEECH_RATE = 165   # words per minute — deliberate, unhurried cadence
@@ -38,10 +39,10 @@ TTS_VOLUME = 0.9
 
 
 # ---------------------------------------------------------------------------
-# Kiyotaka class
+# Mond AI class
 # ---------------------------------------------------------------------------
 
-class Kiyotaka:
+class MondAI:
     """Stoic AI system operator powered by Open Interpreter."""
 
     def __init__(self) -> None:
@@ -52,7 +53,7 @@ class Kiyotaka:
 
         # --- STT engine ---
         self.recognizer = sr.Recognizer()
-        self.recognizer.pause_threshold = 1.0  # wait for natural pauses
+        self.recognizer.pause_threshold = 0.8  # improved response for short wake words
 
         # Calibrate for ambient noise once at startup to reduce per-call latency.
         with sr.Microphone() as source:
@@ -64,7 +65,7 @@ class Kiyotaka:
         interpreter.verbose = False
         interpreter.llm.model = "gpt-4o"      # change to your preferred model
 
-        print("[Kiyotaka] Initialized.")
+        print("[Mond AI] Initialized.")
 
     # ------------------------------------------------------------------
     # Speech helpers
@@ -72,7 +73,7 @@ class Kiyotaka:
 
     def speak(self, text: str) -> None:
         """Output text via TTS and also print it."""
-        print(f"[Kiyotaka] {text}")
+        print(f"[Mond AI] {text}")
         self.tts.say(text)
         self.tts.runAndWait()
 
@@ -89,7 +90,7 @@ class Kiyotaka:
             except sr.UnknownValueError:
                 return None
             except sr.RequestError as exc:
-                print(f"[Kiyotaka] STT service error: {exc}")
+                print(f"[Mond AI] STT service error: {exc}")
                 return None
 
     # ------------------------------------------------------------------
@@ -98,11 +99,11 @@ class Kiyotaka:
 
     def wait_for_wake_word(self) -> None:
         """Block until the wake word is detected."""
-        print(f"[Kiyotaka] Listening for wake word: '{WAKE_WORD}' ...")
+        print(f"[Mond AI] Listening for wake word: '{WAKE_WORD}' ...")
         while True:
-            result = self.listen_once(timeout=10, phrase_limit=5)
-            if result and WAKE_WORD in result.lower():
-                print("[Kiyotaka] Wake word detected.")
+            result = self.listen_once(timeout=10, phrase_limit=4)
+            if result and re.search(rf"\b{re.escape(WAKE_WORD)}\b", result.lower()):
+                print("[Mond AI] Wake word detected.")
                 return
 
     # ------------------------------------------------------------------
@@ -185,19 +186,19 @@ class Kiyotaka:
             try:
                 exec(code, namespace)  # noqa: S102
             except Exception as exc:  # noqa: BLE001
-                print(f"[Kiyotaka] Execution error ({type(exc).__name__}): {exc}")
-                print(f"[Kiyotaka] Failed code:\n{code}")
+                print(f"[Mond AI] Execution error ({type(exc).__name__}): {exc}")
+                print(f"[Mond AI] Failed code:\n{code}")
         else:
             # Treat all other languages (bash, shell, zsh, etc.) as shell.
             output = self.run_shell(code)
-            print(f"[Kiyotaka] Output:\n{output}")
+            print(f"[Mond AI] Output:\n{output}")
 
     def process_with_interpreter(self, user_input: str) -> None:
         """
         Pass user_input to Open Interpreter.
         Proposed code blocks are printed and require 'y' before execution.
         """
-        print(f"[Kiyotaka] Processing: {user_input}")
+        print(f"[Mond AI] Processing: {user_input}")
 
         text_parts, code_blocks = self._collect_response(user_input)
 
@@ -208,16 +209,16 @@ class Kiyotaka:
 
         # For each proposed code block: show it, then ask for confirmation.
         for language, code in code_blocks:
-            print(f"\n[Kiyotaka] Proposed {language or 'code'} block:\n{'─'*40}")
+            print(f"\n[Mond AI] Proposed {language or 'code'} block:\n{'─'*40}")
             print(code)
             print("─" * 40)
 
-            confirmation = input("[Kiyotaka] Execute? (y/n): ").strip().lower()
+            confirmation = input("[Mond AI] Execute? (y/n): ").strip().lower()
             if confirmation == "y":
                 self._execute_code_block(language, code)
                 self.speak("Done.")
             else:
-                print("[Kiyotaka] Execution skipped.")
+                print("[Mond AI] Execution skipped.")
 
     # ------------------------------------------------------------------
     # Main loop
@@ -235,13 +236,13 @@ class Kiyotaka:
                     self.speak("No input received.")
                     continue
 
-                print(f"[Kiyotaka] Command: {command}")
+                print(f"[Mond AI] Command: {command}")
 
                 # Intercept simple shell prefixes so the user can bypass the LLM.
                 if command.lower().startswith("run "):
                     shell_cmd = command[4:].strip()
                     output = self.run_shell(shell_cmd)
-                    print(f"[Kiyotaka] Output:\n{output}")
+                    print(f"[Mond AI] Output:\n{output}")
                     self.speak("Done.")
                 else:
                     self.process_with_interpreter(command)
@@ -256,5 +257,5 @@ class Kiyotaka:
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    kiyotaka = Kiyotaka()
-    kiyotaka.run()
+    mond_ai = MondAI()
+    mond_ai.run()
